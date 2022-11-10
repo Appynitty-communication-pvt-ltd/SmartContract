@@ -1,36 +1,27 @@
 import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import { TripsService } from './trips.service';
-import { SmartcontractsService } from '../smartcontracts/smartcontracts.service';
 import {
   AddHouseHoldAggreegateWasteDto,
   AddDumpyardWasteDto,
 } from './trips.dto';
-import { TripcontractAbi } from '../constants/abis/tripcontract.abi';
-import { TRIP_CONTRACT_ADDRESS } from '../constants/index';
 @Controller('trips')
 export class TripsController {
-  constructor(
-    private tripsService: TripsService,
-    private smartcontractsService: SmartcontractsService,
-  ) {}
+  constructor(private tripsService: TripsService) {}
   @Post('/:tripid/households')
   async addHouseHoldAggregatedData(
     @Param('tripid') tripid: string,
-    @Body() addHouseHoldAggreegateWasteDto: AddHouseHoldAggreegateWasteDto,
+    @Body() addHouseHoldAggreegateWasteDto: AddHouseHoldAggreegateWasteDto
   ) {
     const wasteParams = {
       ...addHouseHoldAggreegateWasteDto,
       tripId: tripid,
     };
-    const tripContract = await this.smartcontractsService.getContract(
-      TRIP_CONTRACT_ADDRESS,
-      TripcontractAbi,
-    );
-    console.log({ tripContract });
-    return this.tripsService.addHouseHoldAggregatedData(wasteParams);
+    const addHouseHoldAggregatedData =
+      await this.tripsService.addHouseHoldAggregatedData(wasteParams);
+    return addHouseHoldAggregatedData;
   }
   @Post('/:tripid/dumpyard')
-  addDumpyardWasteData(
+  async addDumpyardWasteData(
     @Param('tripid') tripid: string,
     @Body() addDumpyardWasteDto: AddDumpyardWasteDto,
   ) {
@@ -38,7 +29,10 @@ export class TripsController {
       ...addDumpyardWasteDto,
       tripId: tripid,
     };
-    return this.tripsService.addDumpyardWasteData(wasteParams);
+    const addDumpyardWasteData = await this.tripsService.addDumpyardWasteData(
+      wasteParams,
+    );
+    return addDumpyardWasteData;
   }
   @Get('/:tripid')
   getVrificationStatus(@Param('tripid') tripid: string) {

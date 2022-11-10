@@ -1,4 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -10,7 +11,7 @@ import { SmartcontractsController } from './smartcontracts/smartcontracts.contro
 import { SmartcontractsService } from './smartcontracts/smartcontracts.service';
 
 @Module({
-  imports: [TripsModule],
+  imports: [TripsModule, ConfigModule.forRoot({ isGlobal: true })],
   controllers: [AppController, TripsController, SmartcontractsController],
   providers: [AppService, TripsService, SmartcontractsService],
 })
