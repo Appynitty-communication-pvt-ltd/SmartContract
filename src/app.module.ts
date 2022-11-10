@@ -6,11 +6,13 @@ import { AuthenticaitonMiddleware } from './common/middleware/authentication.mid
 import { TripsController } from './trips/trips.controller';
 import { TripsService } from './trips/trips.service';
 import { TripsModule } from './trips/trips.module';
+import { SmartcontractsController } from './smartcontracts/smartcontracts.controller';
+import { SmartcontractsService } from './smartcontracts/smartcontracts.service';
 
 @Module({
   imports: [TripsModule],
-  controllers: [AppController, TripsController],
-  providers: [AppService, TripsService],
+  controllers: [AppController, TripsController, SmartcontractsController],
+  providers: [AppService, TripsService, SmartcontractsService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
