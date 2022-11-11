@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { TripsService } from './trips.service';
 import {
   AddHouseHoldAggreegateWasteDto,
@@ -7,10 +8,11 @@ import {
 @Controller('trips')
 export class TripsController {
   constructor(private tripsService: TripsService) {}
+  @UseGuards(AuthGuard('local'))
   @Post('/:tripid/households')
   async addHouseHoldAggregatedData(
     @Param('tripid') tripid: string,
-    @Body() addHouseHoldAggreegateWasteDto: AddHouseHoldAggreegateWasteDto
+    @Body() addHouseHoldAggreegateWasteDto: AddHouseHoldAggreegateWasteDto,
   ) {
     const wasteParams = {
       ...addHouseHoldAggreegateWasteDto,
@@ -20,6 +22,7 @@ export class TripsController {
       await this.tripsService.addHouseHoldAggregatedData(wasteParams);
     return addHouseHoldAggregatedData;
   }
+  @UseGuards(AuthGuard('local'))
   @Post('/:tripid/dumpyard')
   async addDumpyardWasteData(
     @Param('tripid') tripid: string,
@@ -34,6 +37,7 @@ export class TripsController {
     );
     return addDumpyardWasteData;
   }
+  @UseGuards(AuthGuard('local'))
   @Get('/:tripid')
   getVrificationStatus(@Param('tripid') tripid: string) {
     return this.tripsService.getVrificationStatus(tripid);
