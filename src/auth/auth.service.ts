@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, Logger } from '@nestjs/common';
+import Config from 'src/config/configuration';
 const btoa = require('btoa');
 const crypto = require('crypto');
 
@@ -7,10 +8,11 @@ const crypto = require('crypto');
 export class AuthService {
   private logger = new Logger('HTTP');
   async validateUser(username: string, pass: string): Promise<any> {
-    const gnPassowrd = btoa(
-      crypto.pbkdf2Sync(pass, process.env.PASSWORD_SALT, 1000, 32, 'sha256'),
+    const { passwordSalt, passwordHash, adminUsername } = Config().auth;
+    const gnPassword = btoa(
+      crypto.pbkdf2Sync(pass, passwordSalt, 1000, 32, 'sha256'),
     );
-    if (username === 'adminuser' && gnPassowrd === process.env.PASSWORD_HASH) {
+    if (username === adminUsername && gnPassword === passwordHash) {
       this.logger.log('api request is authenticated');
       return true;
     } else {
