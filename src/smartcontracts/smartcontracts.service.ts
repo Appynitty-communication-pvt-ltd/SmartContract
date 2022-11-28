@@ -1,81 +1,98 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const Web3 = require('web3');
-const Tx = require('ethereumjs-tx').Transaction;
 import { Injectable } from '@nestjs/common';
-import { AbiItem } from 'web3-utils';
-import Common from 'ethereumjs-common';
-import { RPC_LINK, TRIP_CONTRACT_ADDRESS } from '../constants/index';
-import { Householdwaste, Dumpyardwaste } from './interfaces/index';
-import { TripcontractAbi } from '../constants/abis/tripcontract.abi';
+import { WasteVerificationAbi } from '../resources/abis/wasteVerification.abi';
+import Config from 'src/config/configuration';
+import { ethers, UnsignedTransaction } from 'ethers';
+import { ITripData } from 'src/trips/interfaces/tripData.interface';
+const { BigNumber } = ethers;
 
 @Injectable()
-export class SmartcontractsService {
-  async getContract(address, abi) {
-    const OWNER_ADDRRESS = process.env.OWNER_ADDRRESS;
-    const web3 = new Web3(new Web3.providers.HttpProvider(RPC_LINK));
-    const contract = new web3.eth.Contract(abi as unknown as AbiItem, address, {
-      from: OWNER_ADDRRESS,
-    });
-    return contract;
+export class SmartContractsService {
+  public getContractInstance(
+    contractAddress: string,
+    contractAbi: any,
+  ): ethers.Contract {
+    const provider = new ethers.providers.JsonRpcProvider(Config().rpcLink);
+    return new ethers.Contract(contractAddress, contractAbi, provider);
   }
-  async prepareTranscation(contractData) {
+
+  public getOwnerWallet(): ethers.Wallet {
+    const provider = new ethers.providers.JsonRpcProvider(Config().rpcLink);
+    return new ethers.Wallet(Config().ownerPrivateKey, provider);
+  }
+
+  async addTripData(tripData: ITripData) {
     try {
-      const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY;
-      const OWNER_ADDRRESS = process.env.OWNER_ADDRRESS;
-      const web3 = new Web3(new Web3.providers.HttpProvider(RPC_LINK));
-      const privateKey = Buffer.from(OWNER_PRIVATE_KEY, 'hex');
-      const txCount = await web3.eth.getTransactionCount(OWNER_ADDRRESS);
-      const gasPrice = await web3.eth.getGasPrice();
-      const gasPriceHex = web3.utils.toHex(gasPrice);
-      const gasLimitHex = web3.utils.toHex(3000000);
-      const txObject = {
-        nonce: web3.utils.toHex(txCount),
-        to: TRIP_CONTRACT_ADDRESS,
-        value: '0x0',
-        gasLimit: gasLimitHex,
-        data: contractData,
-        gasPrice: gasPriceHex,
+      const wasteVerificationContractInstance = this.getContractInstance(
+        Config().wasteVerificationContractAddress,
+        WasteVerificationAbi,
+      );
+      const ownerWallet = new ethers.Wallet(
+        Config().ownerPrivateKey,
+        wasteVerificationContractInstance.provider,
+      );
+
+      const {
+        tripId,
+        transId,
+        startDateTime,
+        endDateTime,
+        userId,
+        dyId,
+        houseList,
+        tripNo,
+        vehicleNumber,
+        totalDryWeight,
+        totalGcWeight,
+        totalWetWeight,
+      } = tripData;
+
+      //For now for quick confirmations on Mumbai
+      const transactionOptions = {
+        gasPrice: BigNumber.from('100000000000'),
       };
-      const common = Common.forCustomChain(
-        'mainnet',
-        {
-          name: 'matic-mumbai', //polygon-mainnet
-          networkId: 80001, //137
-          chainId: 80001, //137
-        },
-        'petersburg',
+
+      let unsignedTransaction: UnsignedTransaction =
+        await wasteVerificationContractInstance.populateTransaction.upsertTripData(
+          Number(tripId),
+          transId,
+          Math.floor(new Date(startDateTime).getTime() / 1000),
+          Math.floor(new Date(endDateTime).getTime() / 1000),
+          Number(userId),
+          dyId,
+          houseList,
+          Number(tripNo),
+          vehicleNumber,
+          //changing tons to grams and scaling them
+          BigNumber.from(Math.floor(Number(totalDryWeight) * 907185.8188)).mul(
+            1e12,
+          ),
+          BigNumber.from(Math.floor(Number(totalGcWeight) * 907185.8188)).mul(
+            1e12,
+          ),
+          BigNumber.from(Math.floor(Number(totalWetWeight) * 907185.8188)).mul(
+            1e12,
+          ),
+        );
+
+      unsignedTransaction = Object.assign(
+        unsignedTransaction,
+        transactionOptions,
       );
-      const tx = new Tx(txObject, { common });
-      tx.sign(privateKey);
-      const serializedTx = tx.serialize();
-      const raw = '0x' + serializedTx.toString('hex');
-      return raw;
-    } catch (error) {
-      console.log('error', error);
-    }
-  }
-  async addAggregatedHouseholdTripData(houseAggregatorData: Householdwaste) {
-    try {
-      const web3 = new Web3(new Web3.providers.HttpProvider(RPC_LINK));
-      const tripContract = await this.getContract(
-        web3.utils.toChecksumAddress(TRIP_CONTRACT_ADDRESS),
-        TripcontractAbi,
+
+      await ownerWallet.signTransaction(unsignedTransaction);
+      const sentTransaction = await ownerWallet.sendTransaction(
+        unsignedTransaction,
       );
-      const contractData = tripContract.methods
-        .addAggregatedHouseholdTripData(
-          houseAggregatorData.tripId,
-          houseAggregatorData.houseIds,
-          houseAggregatorData.userId,
-          houseAggregatorData.vehicleId,
-          houseAggregatorData.tripStartTimestamp,
-        )
-        .encodeABI();
-      const rawTrancation = await this.prepareTranscation(contractData);
-      const transcation = await web3.eth.sendSignedTransaction(rawTrancation);
+      console.log(
+        `Transaction Submitted. Waiting for confirmation. Tx Hash - ${sentTransaction.hash}`,
+      );
+      const txReceipt = await sentTransaction.wait();
+      const { transactionHash } = txReceipt;
       return {
         success: true,
         error: null,
-        data: transcation,
+        data: transactionHash,
       };
     } catch (error) {
       console.log('error', error);
@@ -86,44 +103,15 @@ export class SmartcontractsService {
       };
     }
   }
-  async addDumpyardTripData(dumpyardwaste: Dumpyardwaste) {
-    try {
-      const web3 = new Web3(new Web3.providers.HttpProvider(RPC_LINK));
-      const tripContract = await this.getContract(
-        web3.utils.toChecksumAddress(TRIP_CONTRACT_ADDRESS),
-        TripcontractAbi,
-      );
-      const contractData = tripContract.methods
-        .addDumpyardTripData(
-          dumpyardwaste.tripId,
-          dumpyardwaste.dumpyardId,
-          dumpyardwaste.totalCollectedWaste,
-          dumpyardwaste.tripEndTimestamp,
-        )
-        .encodeABI();
-      const rawTrancation = await this.prepareTranscation(contractData);
-      const transcation = await web3.eth.sendSignedTransaction(rawTrancation);
-      return {
-        success: true,
-        error: null,
-        data: transcation,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error,
-        data: null,
-      };
-    }
-  }
+
   async tripInfo(tripid: string) {
     try {
-      const web3 = new Web3(new Web3.providers.HttpProvider(RPC_LINK));
-      const tripContract = await this.getContract(
-        web3.utils.toChecksumAddress(TRIP_CONTRACT_ADDRESS),
-        TripcontractAbi,
+      const wasteVerificationContractInstance = this.getContractInstance(
+        Config().wasteVerificationContractAddress,
+        WasteVerificationAbi,
       );
-      const tripdata = await tripContract.methods.tripInfo(tripid).call();
+      const tripdata = await wasteVerificationContractInstance.tripInfo(tripid);
+      console.log(tripdata);
       return {
         success: true,
         data: tripdata,
