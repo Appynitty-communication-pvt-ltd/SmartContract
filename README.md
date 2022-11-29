@@ -1,73 +1,93 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+## WasteVerification Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+### Deployed Contracts
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+| Name | Network | Address |
+| :--- | :--- | :--- |
+| WasteVerification.sol | Mumbai | [0xD6D7a34BC015a0dEfa6B342BAC5c9d92Fc5c3D40](https://mumbai.polygonscan.com/address/0xD6D7a34BC015a0dEfa6B342BAC5c9d92Fc5c3D40#code) |
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### APIs
 
-## Installation
+#### 1. addTripData
 
-```bash
-$ npm install
+Save Trip Collection Data to contract storage. Same API to be used for updating fields as well.
+While updating sata please make sure to send all data as payload (even those that do not require updation).
+
+```solidity
+@Post('/:tripId/tripdata')
 ```
 
-## Running the app
+#### Parameters (As Param)
+ 
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripId | string | TripId Primary Key of the dumpyard details db. |
 
-```bash
-# development
-$ npm run start
+#### Parameters (As Body) 
 
-# watch mode
-$ npm run start:dev
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripId | string | TripId Primary Key of the dumpyard details db. |
+| transId | string | TransId Generated key based on AppId, UserId etc. |
+| startDateTime | string | Trip Start time in Date format based on first house scanned. |
+| endDateTime | string | Trip End Time in Date format based on the time when the waste is processed at dumpyard. |
+| userId | string | Waste Collector UserId. |
+| dyId | string | Dumpyard Id. |
+| houseList | string[] | List of houses from which the waste is collected. |
+| tripNo | string | Number of trips completed for this tripId |
+| vehicleNumber | string | Vehicle Number of the mode of transport used for waste collection. |
+| totalGcWeight | string | Total Weight Collected for the trip in tonnes. |
+| totalDryWeight | string | Total Dry Weight Collected for the trip in tonnes. |
+| totalWetWeight | string | Total Wet Weight Collected for the trip in tonnes. |
+___
 
-# production mode
-$ npm run start:prod
+#### Example Payload -
+
+```solidity
+{
+    "tripId": "1",
+    "transId": "3098&17&2022-11-22 12:59:00.995&DYSBA1001&1",
+    "startDateTime": "2022-11-22 12:55:00.997",
+    "endDateTime": "2022-11-22 12:56:00.997",
+    "userId": "12",
+    "dyId": "DYSBA1001",
+    "houseList": [
+        "HPSBA4021",
+        "HPSBA4022",
+        "HPSBA4023",
+        "HPSBA4024"
+    ],
+    "tripNo": "1",
+    "vehicleNumber": "446445",
+    "totalGcWeight": "1.0",
+    "totalDryWeight": "1.0",
+    "totalWetWeight": "2.0"
+}
 ```
 
-## Test
+### 2. Get Trip Verification Status
 
-```bash
-# unit tests
-$ npm run test
+Get the current verification status for a TripId.
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```solidity
+@Get('/:tripId')
 ```
 
-## Support
+#### Parameters (As Param)
+ 
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tripId | string | TripId Primary Key of the dumpyard details db. |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+##### GarbageQuantityVerificationStatus
 
-## Stay in touch
+```solidity
+{
+  UNINITIALIZED,
+  SUCCESS,
+  FAILED
+}
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
-
-Nest is [MIT licensed](LICENSE).

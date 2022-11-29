@@ -1,19 +1,22 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { TripsController } from './trips/trips.controller';
-import { TripsService } from './trips/trips.service';
+import { LoggerMiddleware } from './utils/middleware/logger.middleware';
 import { TripsModule } from './trips/trips.module';
-import { SmartcontractsController } from './smartcontracts/smartcontracts.controller';
-import { SmartcontractsService } from './smartcontracts/smartcontracts.service';
 import { AuthModule } from './auth/auth.module';
+import { SmartContractsModule } from './smartcontracts/smartcontracts.module';
+import configuration from './config/configuration';
 
 @Module({
-  imports: [TripsModule, ConfigModule.forRoot({ isGlobal: true }), AuthModule],
-  controllers: [AppController, TripsController, SmartcontractsController],
-  providers: [AppService, TripsService, SmartcontractsService],
+  imports: [
+    TripsModule,
+    ConfigModule.forRoot({
+      load: [configuration],
+      isGlobal: true,
+      cache: true,
+    }),
+    AuthModule,
+    SmartContractsModule,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
