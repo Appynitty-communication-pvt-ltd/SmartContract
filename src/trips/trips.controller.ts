@@ -4,7 +4,7 @@ import { TripsService } from './trips.service';
 import { AddTripDataDto } from './dtos/trips.dto';
 
 @Controller('trips')
-@UseGuards(AuthGuard('local'))
+// @UseGuards(AuthGuard('local'))
 export class TripsController {
   constructor(private tripsService: TripsService) {}
 
