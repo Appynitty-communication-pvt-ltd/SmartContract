@@ -49,6 +49,12 @@ export const WasteVerificationAbi = [
     inputs: [
       {
         indexed: true,
+        internalType: 'string',
+        name: 'transId',
+        type: 'string',
+      },
+      {
+        indexed: true,
         internalType: 'uint256',
         name: 'tripId',
         type: 'uint256',
@@ -66,6 +72,12 @@ export const WasteVerificationAbi = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: true,
+        internalType: 'string',
+        name: 'transId',
+        type: 'string',
+      },
       {
         indexed: true,
         internalType: 'uint256',
@@ -108,7 +120,12 @@ export const WasteVerificationAbi = [
     outputs: [
       {
         internalType: 'uint256',
-        name: 'totalTentativeWaste',
+        name: 'totalTentativeWasteUpperLimit',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'totalTentativeWasteLowerLimit',
         type: 'uint256',
       },
     ],
@@ -118,9 +135,9 @@ export const WasteVerificationAbi = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '_tripId',
-        type: 'uint256',
+        internalType: 'string',
+        name: '_transId',
+        type: 'string',
       },
     ],
     name: 'getTripData',
@@ -276,9 +293,9 @@ export const WasteVerificationAbi = [
   {
     inputs: [
       {
-        internalType: 'uint256',
+        internalType: 'string',
         name: '',
-        type: 'uint256',
+        type: 'string',
       },
     ],
     name: 'tripInfo',
