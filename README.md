@@ -68,7 +68,7 @@ ___
 
 ### 2. Get Trip Verification Status
 
-Get the current verification status for a TripId.
+Get the current verification status for a TransId.
 
 ```solidity
 @Get('/trips/tripData')
