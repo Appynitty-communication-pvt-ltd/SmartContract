@@ -49,29 +49,29 @@ export class SmartContractsService {
 
       //For now for quick confirmations on Mumbai
       const transactionOptions = {
-        gasPrice: BigNumber.from('100000000000'),
+        gasPrice: ethers.utils.parseUnits(Config().gasPrice, 'gwei'),
       };
 
       let unsignedTransaction: UnsignedTransaction =
         await wasteVerificationContractInstance.populateTransaction.upsertTripData(
           Number(tripId),
           transId,
-          Math.floor(new Date(startDateTime).getTime() / 1000),
-          Math.floor(new Date(endDateTime).getTime() / 1000),
+          startDateTime,
+          endDateTime,
           Number(userId),
           dyId,
           houseList,
           Number(tripNo),
           vehicleNumber,
-          //changing tons to grams and scaling them
-          BigNumber.from(Math.floor(Number(totalDryWeight) * 907185.8188)).mul(
-            1e12,
+          //changing tons to grams and scaling them by a total of 1e12
+          BigNumber.from(Number(totalGcWeight) * 1e8).mul(
+            BigNumber.from(907185.8188 * 1e4),
           ),
-          BigNumber.from(Math.floor(Number(totalGcWeight) * 907185.8188)).mul(
-            1e12,
+          BigNumber.from(Number(totalDryWeight) * 1e8).mul(
+            BigNumber.from(907185.8188 * 1e4),
           ),
-          BigNumber.from(Math.floor(Number(totalWetWeight) * 907185.8188)).mul(
-            1e12,
+          BigNumber.from(Number(totalWetWeight) * 1e8).mul(
+            BigNumber.from(907185.8188 * 1e4),
           ),
         );
 
@@ -104,13 +104,15 @@ export class SmartContractsService {
     }
   }
 
-  async tripInfo(tripid: string) {
+  async tripInfo(transId: string) {
     try {
       const wasteVerificationContractInstance = this.getContractInstance(
         Config().wasteVerificationContractAddress,
         WasteVerificationAbi,
       );
-      const tripdata = await wasteVerificationContractInstance.tripInfo(tripid);
+      const tripdata = await wasteVerificationContractInstance.getTripData(
+        transId,
+      );
       console.log(tripdata);
       return {
         success: true,
