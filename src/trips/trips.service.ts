@@ -18,26 +18,23 @@ export class TripsService {
     }
   }
 
-  async getVerificationStatus(tripid: string) {
-    const contractInteractions = await this.smartContractsService.tripInfo(
-      tripid,
-    );
-    if (contractInteractions.success) {
+  async getVerificationStatus(transId: string) {
+    const result = await this.smartContractsService.tripInfo(transId);
+    if (result.success) {
       return {
         success: true,
         data: {
-          tripId: Number(contractInteractions.data.tripId),
+          transId: result.data.transId,
+          tripId: Number(result.data.tripId),
           garbageQuantityVerificationStatus:
             GARBAGE_VERIFICATION_STATUS[
-              Number(
-                contractInteractions.data.garbageQuantityVerificationStatus,
-              )
+              Number(result.data.garbageQuantityVerificationStatus)
             ],
         },
         error: null,
       };
     } else {
-      return contractInteractions;
+      return result;
     }
   }
 }

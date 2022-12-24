@@ -6,9 +6,15 @@ export class AddTripDataDto {
   userId: string;
   dyId: string;
   houseList: Array<string>;
+  totalNumberOfHouses: string;
   tripNo: string;
   vehicleNumber: string;
   totalGcWeight: string;
   totalDryWeight: string;
   totalWetWeight: string;
+  totalHours: string;
+}
+
+export class GetTripDataDto {
+  transId: string;
 }

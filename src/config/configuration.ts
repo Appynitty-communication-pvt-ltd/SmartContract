@@ -11,6 +11,7 @@ export const Config = () => ({
   ownerPrivateKey: process.env.OWNER_PRIVATE_KEY,
   wasteVerificationContractAddress:
     process.env.WASTE_VERIFICATION_CONTRACT_ADDRESS,
+  gasPrice: process.env.GAS_PRICE || '50',
 });
 
 export { Config as default };
