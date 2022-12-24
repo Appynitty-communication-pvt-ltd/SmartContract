@@ -1,10 +1,10 @@
-import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TripsService } from './trips.service';
 import { AddTripDataDto, GetTripDataDto } from './dtos/trips.dto';
 
 @Controller('trips')
-// @UseGuards(AuthGuard('local'))
+@UseGuards(AuthGuard('basic'))
 export class TripsController {
   constructor(private tripsService: TripsService) {}
 
