@@ -5,6 +5,7 @@ import Config from 'src/config/configuration';
 import { ethers, UnsignedTransaction } from 'ethers';
 import { ITripData } from 'src/trips/interfaces/tripData.interface';
 const { BigNumber } = ethers;
+import { Decimal } from 'decimal.js';
 
 @Injectable()
 export class SmartContractsService {
@@ -64,13 +65,13 @@ export class SmartContractsService {
           Number(tripNo),
           vehicleNumber,
           //changing tons to grams and scaling them by a total of 1e12
-          BigNumber.from(Number(totalGcWeight) * 1e8).mul(
+          BigNumber.from(String(new Decimal(totalGcWeight).times(1e8))).mul(
             BigNumber.from(907185.8188 * 1e4),
           ),
-          BigNumber.from(Number(totalDryWeight) * 1e8).mul(
+          BigNumber.from(String(new Decimal(totalDryWeight).times(1e8))).mul(
             BigNumber.from(907185.8188 * 1e4),
           ),
-          BigNumber.from(Number(totalWetWeight) * 1e8).mul(
+          BigNumber.from(String(new Decimal(totalWetWeight).times(1e8))).mul(
             BigNumber.from(907185.8188 * 1e4),
           ),
         );
