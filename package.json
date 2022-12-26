@@ -30,6 +30,7 @@
     "bignumber.js": "^9.1.0",
     "btoa": "^1.2.1",
     "crypto": "^1.0.1",
+    "decimal.js": "^10.4.3",
     "ethereumjs-tx": "^2.1.2",
     "ethers": "^5.7.2",
     "passport": "^0.6.0",
