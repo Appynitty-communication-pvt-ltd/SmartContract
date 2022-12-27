@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TripsService } from './trips.service';
 import { AddTripDataDto, GetTripDataDto } from './dtos/trips.dto';
@@ -13,7 +13,7 @@ export class TripsController {
     return this.tripsService.addTripData(addTripDataDto);
   }
 
-  @Get('/tripdata')
+  @Post('/status')
   public async getVerificationStatus(@Body() getTripDataDto: GetTripDataDto) {
     return this.tripsService.getVerificationStatus(getTripDataDto.transId);
   }

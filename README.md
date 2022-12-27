@@ -71,7 +71,7 @@ ___
 Get the current verification status for a TransId.
 
 ```solidity
-@Get('/trips/tripData')
+@Post('/trips/status')
 ```
 
 #### Parameters (As Body) 
