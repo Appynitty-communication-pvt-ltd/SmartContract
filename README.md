@@ -17,7 +17,7 @@ Save Trip Collection Data to contract storage. Same API to be used for updating 
 While updating sata please make sure to send all data as payload (even those that do not require updation).
 
 ```solidity
-@Post('/trips/tripdata')
+@Post('/trips')
 ```
 
 #### Parameters (As Body) 
@@ -71,17 +71,17 @@ ___
 Get the current verification status for a TransId.
 
 ```solidity
-@Post('/trips/status')
+@Get('/trips?transId={transId}')
 ```
 
-#### Parameters (As Body) 
+#### Parameters (As Query Param) 
  
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | transId | string | TransId Key of the dumpyard details db. |
 ___
 
-#### Example Payload -
+#### Example TransId (To be sent in Query Param) -
 
 ```solidity
 {

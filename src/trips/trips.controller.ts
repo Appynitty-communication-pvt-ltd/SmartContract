@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TripsService } from './trips.service';
 import { AddTripDataDto, GetTripDataDto } from './dtos/trips.dto';
@@ -8,13 +8,14 @@ import { AddTripDataDto, GetTripDataDto } from './dtos/trips.dto';
 export class TripsController {
   constructor(private tripsService: TripsService) {}
 
-  @Post('/tripdata')
+  @Post('/')
   public async addTripData(@Body() addTripDataDto: AddTripDataDto) {
     return this.tripsService.addTripData(addTripDataDto);
   }
 
-  @Post('/status')
-  public async getVerificationStatus(@Body() getTripDataDto: GetTripDataDto) {
-    return this.tripsService.getVerificationStatus(getTripDataDto.transId);
+  @Get('/')
+  public async getVerificationStatus(@Query('transId') transId: string) {
+    console.log(transId);
+    return this.tripsService.getVerificationStatus(transId);
   }
 }
