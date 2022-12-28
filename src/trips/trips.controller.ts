@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { TripsService } from './trips.service';
-import { AddTripDataDto, GetTripDataDto } from './dtos/trips.dto';
+import { AddTripDataDto } from './dtos/trips.dto';
 
 @Controller('trips')
 @UseGuards(AuthGuard('basic'))
