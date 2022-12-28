@@ -15,7 +15,6 @@ export class TripsController {
 
   @Get('/')
   public async getVerificationStatus(@Query('transId') transId: string) {
-    console.log(transId);
     return this.tripsService.getVerificationStatus(transId);
   }
 }
