@@ -7,7 +7,6 @@ export const Config = () => ({
     adminUsername: process.env.ADMIN_USERNAME,
   },
   rpcLink: process.env.RPC_URL || 'https://rpc-mumbai.maticvigil.com/',
-  ownerAddress: process.env.RPC_URL,
   ownerPrivateKey: process.env.OWNER_PRIVATE_KEY,
   wasteVerificationContractAddress:
     process.env.WASTE_VERIFICATION_CONTRACT_ADDRESS,
