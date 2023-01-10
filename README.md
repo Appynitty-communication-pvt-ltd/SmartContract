@@ -1,5 +1,46 @@
 ## WasteVerification Backend
 
+
+### Steps to setup this project.
+
+The service is developed using [NestJS](https://nestjs.com/).
+
+- Clone Project Codebase
+
+```
+git clone https://github.com/cryption-network/waste-management-backend
+```
+
+Add a .env file in root directory. Duplicate the contents of `.env-dev` file present in the same directory and update relevant fields.
+
+- Install dependencies
+
+```shell script
+yarn
+```
+
+- Start the service
+
+```shell script
+yarn run start:dev
+```
+
+The following variables in the .env file need to be updated/checked for running the service -
+
+```
+NODE_ENV=development
+NODE_PORT=3000
+PASSWORD_SALT=
+PASSWORD_HASH=
+ADMIN_USERNAME=
+RPC_URL=
+OWNER_PRIVATE_KEY=
+WASTE_VERIFICATION_CONTRACT_ADDRESS=
+GAS_PRICE="50"
+```
+
+These credentials are private and should be obtained through communication with the Cryption Team.
+
 ### Deployed Contracts
 
 | Name | Network | Address |
