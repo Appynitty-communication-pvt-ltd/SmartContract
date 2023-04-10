@@ -49,11 +49,11 @@ export class SmartContractsService {
       } = tripData;
 
       //For now for quick confirmations on Mumbai
-      const transactionOptions = {
-        gasPrice: ethers.utils.parseUnits(Config().gasPrice, 'gwei'),
-      };
+      // const transactionOptions = {
+      //   gasPrice: ethers.utils.parseUnits(Config().gasPrice, 'gwei'),
+      // };
 
-      let unsignedTransaction: UnsignedTransaction =
+      const unsignedTransaction: UnsignedTransaction =
         await wasteVerificationContractInstance.populateTransaction.upsertTripData(
           Number(tripId),
           transId,
@@ -76,10 +76,10 @@ export class SmartContractsService {
           ),
         );
 
-      unsignedTransaction = Object.assign(
-        unsignedTransaction,
-        transactionOptions,
-      );
+      // unsignedTransaction = Object.assign(
+      //   unsignedTransaction,
+      //   transactionOptions,
+      // );
 
       await ownerWallet.signTransaction(unsignedTransaction);
       const sentTransaction = await ownerWallet.sendTransaction(
