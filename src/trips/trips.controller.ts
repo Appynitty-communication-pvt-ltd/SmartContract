@@ -17,4 +17,12 @@ export class TripsController {
   public async getVerificationStatus(@Query('transId') transId: string) {
     return this.tripsService.getVerificationStatus(transId);
   }
+
+  //Can be used to send any transaction hash and retrieve its correct status i.e. success/failure/pending
+  @Get('transaction/status')
+  public async getTransactionStatus(
+    @Query('transactionHash') transactionHash: string,
+  ) {
+    return this.tripsService.getTransactionStatus(transactionHash);
+  }
 }

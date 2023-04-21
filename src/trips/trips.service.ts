@@ -37,4 +37,17 @@ export class TripsService {
       return result;
     }
   }
+
+  async getTransactionStatus(transactionHash: string) {
+    try {
+      return await this.smartContractsService.getTransactionStatus(
+        transactionHash,
+      );
+    } catch (error) {
+      throw new HttpException(
+        { success: false, error: error.message },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
