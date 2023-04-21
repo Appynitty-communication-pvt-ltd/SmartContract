@@ -128,4 +128,55 @@ export class SmartContractsService {
       };
     }
   }
+
+  async getTransactionStatus(transactionHash: string) {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(Config().rpcLink);
+      const transactionReceipt = await provider.getTransactionReceipt(
+        transactionHash,
+      );
+
+      if (transactionReceipt && transactionReceipt.status == 1) {
+        return {
+          success: true,
+          data: transactionReceipt,
+          error: null,
+          message: 'Success',
+        };
+      } else if (transactionReceipt && transactionReceipt.status == 0) {
+        return {
+          success: false,
+          data: transactionReceipt,
+          error: null,
+          message: 'Failed',
+        };
+      } else if (transactionReceipt === null) {
+        const transactionDetails = await provider.getTransaction(
+          transactionHash,
+        );
+        if (transactionDetails === null) {
+          return {
+            success: false,
+            data: null,
+            error: null,
+            message: 'Invalid Transaction Hash',
+          };
+        } else {
+          return {
+            success: false,
+            data: transactionDetails,
+            error: null,
+            message: 'Pending',
+          };
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        error,
+        message: 'Invalid Transaction Hash',
+      };
+    }
+  }
 }
