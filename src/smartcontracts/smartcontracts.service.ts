@@ -48,11 +48,6 @@ export class SmartContractsService {
         totalWetWeight,
       } = tripData;
 
-      //For now for quick confirmations on Mumbai
-      // const transactionOptions = {
-      //   gasPrice: ethers.utils.parseUnits(Config().gasPrice, 'gwei'),
-      // };
-
       const unsignedTransaction: UnsignedTransaction =
         await wasteVerificationContractInstance.populateTransaction.upsertTripData(
           Number(tripId),
@@ -75,11 +70,6 @@ export class SmartContractsService {
             BigNumber.from(907185.8188 * 1e4),
           ),
         );
-
-      // unsignedTransaction = Object.assign(
-      //   unsignedTransaction,
-      //   transactionOptions,
-      // );
 
       await ownerWallet.signTransaction(unsignedTransaction);
       const sentTransaction = await ownerWallet.sendTransaction(
@@ -135,25 +125,9 @@ export class SmartContractsService {
       const transactionReceipt = await provider.getTransactionReceipt(
         transactionHash,
       );
+      const transactionDetails = await provider.getTransaction(transactionHash);
 
-      if (transactionReceipt && transactionReceipt.status == 1) {
-        return {
-          success: true,
-          data: transactionReceipt,
-          error: null,
-          message: 'Success',
-        };
-      } else if (transactionReceipt && transactionReceipt.status == 0) {
-        return {
-          success: false,
-          data: transactionReceipt,
-          error: null,
-          message: 'Failed',
-        };
-      } else if (transactionReceipt === null) {
-        const transactionDetails = await provider.getTransaction(
-          transactionHash,
-        );
+      if (transactionReceipt === null) {
         if (transactionDetails === null) {
           return {
             success: false,
@@ -164,9 +138,81 @@ export class SmartContractsService {
         } else {
           return {
             success: false,
-            data: transactionDetails,
+            data: null,
             error: null,
             message: 'Pending',
+          };
+        }
+      } else {
+        const blockDetails = await provider.getBlock(
+          transactionDetails.blockNumber,
+        );
+        const result = {
+          'Transaction Hash': transactionHash,
+          Block: transactionDetails.blockNumber,
+          Timestamp: blockDetails.timestamp,
+          From: transactionDetails.from,
+          To: transactionDetails.to,
+          Value: String(transactionDetails.value),
+          'Gas Price': `${Number(
+            ethers.utils.formatUnits(transactionDetails.gasPrice, 'gwei'),
+          ).toFixed(4)} Gwei`,
+          'Gas Limit': String(transactionDetails.gasLimit),
+        };
+
+        const iface = new ethers.utils.Interface(WasteVerificationAbi);
+        const parsedData = iface.parseTransaction({
+          data: transactionDetails.data,
+        });
+        if (parsedData && parsedData.args && parsedData.args['_tripId']) {
+          //this means this is a upsertTripData transaction, so we can return the input params
+          const {
+            _tripId,
+            _transId,
+            _startDateTime,
+            _endDateTime,
+            _userId,
+            _dyId,
+            _houseList,
+            _tripNo,
+            _vehicleNumber,
+            _totalGcWeight,
+            _totalDryWeight,
+            _totalWetWeight,
+          } = parsedData.args;
+
+          const inputData = {
+            tripId: String(_tripId),
+            transId: _transId,
+            startDateTime: String(_startDateTime),
+            endDateTime: String(_endDateTime),
+            userId: String(_userId),
+            dyId: _dyId,
+            houseList: _houseList,
+            tripNo: String(_tripNo),
+            vehicleNumber: _vehicleNumber,
+            totalDryWeight: String(_totalGcWeight),
+            totalGcWeightL: String(_totalDryWeight),
+            totalWetWeight: String(_totalWetWeight),
+          };
+          result['Input Data'] = inputData;
+        }
+
+        if (transactionReceipt.status == 1) {
+          result['Status'] = 'Success';
+          return {
+            success: true,
+            data: result,
+            error: null,
+            message: 'Success',
+          };
+        } else if (transactionReceipt.status == 0) {
+          result['Status'] = 'Failed';
+          return {
+            success: false,
+            data: result,
+            error: null,
+            message: 'Failed',
           };
         }
       }
